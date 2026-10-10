@@ -92,6 +92,19 @@
   .pv-go svg { transition: transform .2s; }
   .pv:hover .pv-go svg { transform: translateX(3px); }
 
+  .btn.see { margin-top: 24px; }
+
+  /* Walkthrough video */
+  .video { margin: 0 0 24px; }
+  .video[hidden] { display: none; }
+  .video-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .video-len { font-size: 14px; color: var(--ink3); }
+  .video-frame {
+    aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden;
+    background: #0B0F17; border: 1px solid var(--line);
+  }
+  .video-frame iframe, .video-frame video { width: 100%; height: 100%; border: 0; display: block; }
+
   /* Tips */
   .tips {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
@@ -233,6 +246,14 @@
     </a>
   </div>
 
+  <section class="video" id="video" hidden>
+    <div class="video-head">
+      <span class="pv-title">Walkthrough</span>
+      <span class="video-len" id="video-len"></span>
+    </div>
+    <div class="video-frame" id="video-frame"></div>
+  </section>
+
   <div class="tips">
     <div class="tip"><b>Prototype menu</b>Bottom-left of the redesign: jump to the original, read what changed, or simulate missing data.</div>
     <div class="tip"><b>Add to list, anywhere</b>Press <kbd>L</kbd> on the redesign. Lists are multi-select, with Undo.</div>
@@ -279,6 +300,10 @@
           <li><b>Motion that keeps context</b>Charts morph between tabs instead of redrawing: growth zooms between ranges, ranked bars slide into order, the donut resizes, and age bars split by gender. Motion is fast (under 0.7s) and turns off for reduced-motion users.</li>
         </ol>
         <p style="margin-top:20px">Supporting sections (Images vs Reels, ranked engagement, a compact sponsored vs organic check, content, brands, growth phases) follow the same rules.</p>
+        <a class="btn primary see" href="qoruz-redesign.html">
+          See it in the prototype
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
       </section>
 
       <section id="why">
@@ -312,6 +337,26 @@
 <script>
   // Paste the Figma view link here. While it's empty, the button shows "Figma link coming soon".
   const FIGMA_URL = '';
+
+  // Paste the walkthrough link here: a YouTube or Loom share link, or a path
+  // to an .mp4 in this repo (e.g. 'assets/walkthrough.mp4'). While it's
+  // empty, the video section stays hidden. VIDEO_LENGTH is optional, e.g. '2 min'.
+  const VIDEO_URL = '';
+  const VIDEO_LENGTH = '';
+
+  if (VIDEO_URL) {
+    const frame = document.getElementById('video-frame');
+    const yt = VIDEO_URL.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/);
+    const loom = VIDEO_URL.match(/loom\.com\/(?:share|embed)\/(\w+)/);
+    const src = yt ? `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0`
+              : loom ? `https://www.loom.com/embed/${loom[1]}?hide_owner=true&hide_share=true&hideEmbedTopBar=true`
+              : null;
+    frame.innerHTML = src
+      ? `<iframe src="${src}" title="Walkthrough of the redesign" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
+      : `<video src="${VIDEO_URL}" controls preload="metadata" playsinline></video>`;
+    document.getElementById('video-len').textContent = VIDEO_LENGTH;
+    document.getElementById('video').hidden = false;
+  }
 
   const fig = document.getElementById('figma');
   if (FIGMA_URL) {
