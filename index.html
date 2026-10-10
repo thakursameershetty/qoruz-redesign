@@ -157,6 +157,12 @@
   article p:last-child { margin-bottom: 0; }
   article strong { color: var(--ink); font-weight: 600; }
 
+  .issues { list-style: none; margin: 4px 0 0; padding: 0; }
+  .issues li { position: relative; padding: 12px 0 12px 22px; color: var(--ink2); }
+  .issues li + li { border-top: 1px solid var(--line); }
+  .issues li::before { content: ""; position: absolute; left: 2px; top: 22px; width: 7px; height: 7px; border-radius: 50%; background: #F04438; }
+  .issues li b { color: var(--ink); font-weight: 600; }
+
   .changes { list-style: none; margin: 20px 0 0; padding: 0; counter-reset: c; display: flex; flex-direction: column; gap: 12px; }
   .changes li {
     counter-increment: c; position: relative;
@@ -285,8 +291,14 @@
 
       <section id="doesnt">
         <h3>What doesn't</h3>
-        <p>It answers "what are her numbers?", not "should we work with her?". About 17 sections carry equal weight, and the AI summary, the insights and the top metrics repeat each other.</p>
-        <p>Most numbers have no benchmark, and where one exists the label can mislead: <span class="stat">0.57</span> comments per 100 likes, against <span class="stat">1.62</span> for similar creators, is badged "Average". Add to list scrolls out of view, and the charts have no scales.</p>
+        <p>The page answers "what are her numbers?", not "should we work with her?"</p>
+        <ul class="issues">
+          <li><b>Everything has equal weight.</b> About 17 sections compete for attention, with no clear starting point.</li>
+          <li><b>The same numbers repeat.</b> The AI summary, the insights and the top metrics restate each other.</li>
+          <li><b>Numbers lack context.</b> Most have no benchmark. Where one exists, the label can mislead: her comment rate is a third of similar creators' (<span class="stat">0.57</span> vs <span class="stat">1.62</span>), yet it's badged "Average".</li>
+          <li><b>The main action hides.</b> Add to list scrolls out of view.</li>
+          <li><b>Charts have no scales,</b> so values can't be read.</li>
+        </ul>
       </section>
 
       <section id="changed">
