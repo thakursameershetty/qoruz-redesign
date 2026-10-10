@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/redesign", "destination": "/qoruz-redesign.html" },
-    { "source": "/original", "destination": "/qoruz-original.html" }
+    { "source": "/redesign", "destination": "/qoruz-redesign" },
+    { "source": "/original", "destination": "/qoruz-original" }
   ]
 }
