@@ -108,11 +108,30 @@
 
   /* Note */
   .note { display: grid; grid-template-columns: 220px 1fr; gap: 48px; padding-bottom: 80px; }
-  .toc { position: sticky; top: 32px; align-self: start; }
-  .toc-label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; }
-  .toc a { display: block; padding: 6px 0 6px 12px; border-left: 2px solid var(--line); font-size: 14px; color: var(--ink3); text-decoration: none; transition: color .15s, border-color .15s; }
-  .toc a:hover { color: var(--ink); }
-  .toc a.on { color: var(--ink); border-color: var(--brand); font-weight: 500; }
+  .toc { position: sticky; top: 40px; align-self: start; }
+  .toc-top {
+    display: block; margin-bottom: 20px; padding: 0; border: 0; background: none; cursor: pointer;
+    font: 400 15px/1.5 Inter, sans-serif; color: var(--ink4); transition: color .15s;
+  }
+  .toc-top:hover { color: var(--ink); }
+  .toc-list { position: relative; }
+  .toc-list a {
+    display: block; width: max-content; padding: 6px 0;
+    font-size: 15px; line-height: 1.5; color: var(--ink4); text-decoration: none;
+    transition: color .2s;
+  }
+  .toc-list a:hover { color: var(--ink2); }
+  .toc-list a.on { color: var(--ink); font-weight: 600; }
+  /* The dot sits after the active label and hops to the next one */
+  .toc-dot {
+    position: absolute; left: 0; top: 0; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--ink); opacity: 0; pointer-events: none;
+    transition: transform .45s cubic-bezier(.34, 1.4, .64, 1), opacity .2s;
+  }
+  .toc-dot.ready { opacity: 1; }
+  .toc-dot i { display: block; width: 100%; height: 100%; border-radius: 50%; background: inherit; }
+  .toc-dot.hop i { animation: hop .45s ease; }
+  @keyframes hop { 40% { transform: scale(.55); } 100% { transform: scale(1); } }
 
   article { max-width: 680px; }
   article h2 { margin: 0 0 6px; font-size: 28px; line-height: 1.2; font-weight: 700; letter-spacing: -0.015em; }
@@ -222,12 +241,15 @@
 
   <div class="note" id="note">
     <nav class="toc" aria-label="Note sections">
-      <div class="toc-label">The note</div>
-      <a href="#works">What works today</a>
-      <a href="#doesnt">What doesn't</a>
-      <a href="#changed">What I changed</a>
-      <a href="#why">Why</a>
-      <a href="#caveats">Caveats</a>
+      <button class="toc-top" type="button">Scroll to top</button>
+      <div class="toc-list">
+        <a href="#works">What works today</a>
+        <a href="#doesnt">What doesn't</a>
+        <a href="#changed">What I changed</a>
+        <a href="#why">Why</a>
+        <a href="#caveats">Caveats</a>
+        <span class="toc-dot" aria-hidden="true"><i></i></span>
+      </div>
     </nav>
 
     <article>
@@ -301,15 +323,63 @@
     fig.querySelector('span').textContent = 'Figma link coming soon';
   }
 
-  // Highlight the note section in view
-  const links = [...document.querySelectorAll('.toc a')];
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
-    });
-  }, { rootMargin: '-30% 0px -60% 0px' });
-  document.querySelectorAll('article section').forEach(s => io.observe(s));
+  // Side menu: highlight the section being read, and move the dot to it
+  const links = [...document.querySelectorAll('.toc-list a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href')));
+  const dot = document.querySelector('.toc-dot');
+  let active = -1, locked = false, unlockTimer;
+
+  function placeDot(animate) {
+    const a = links[active];
+    if (!a) return;
+    const x = a.offsetLeft + a.offsetWidth + 10;
+    const y = a.offsetTop + a.offsetHeight / 2 - dot.offsetHeight / 2;
+    if (!animate) dot.style.transition = 'none';
+    dot.style.transform = `translate(${x}px, ${y}px)`;
+    if (!animate) { dot.offsetWidth; dot.style.transition = ''; }
+    if (animate) { dot.classList.remove('hop'); dot.offsetWidth; dot.classList.add('hop'); }
+    dot.classList.add('ready');
+  }
+
+  function setActive(i, animate = true) {
+    if (i === active) return;
+    active = i;
+    links.forEach((a, j) => a.classList.toggle('on', j === i));
+    placeDot(animate && dot.classList.contains('ready'));
+  }
+
+  // The current section is the last one whose top has reached the top of the
+  // screen; at the very bottom of the page it's the last section
+  function current() {
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) return sections.length - 1;
+    const line = 140;
+    let i = 0;
+    sections.forEach((s, j) => { if (s.getBoundingClientRect().top <= line) i = j; });
+    return i;
+  }
+
+  addEventListener('scroll', () => {
+    if (locked) {
+      // Hold the clicked item until the smooth scroll settles
+      clearTimeout(unlockTimer);
+      unlockTimer = setTimeout(() => { locked = false; }, 150);
+      return;
+    }
+    setActive(current());
+  }, { passive: true });
+
+  links.forEach((a, i) => a.addEventListener('click', () => {
+    locked = true;
+    clearTimeout(unlockTimer);
+    unlockTimer = setTimeout(() => { locked = false; }, 1000);
+    setActive(i);
+  }));
+
+  document.querySelector('.toc-top').addEventListener('click', () => scrollTo({ top: 0 }));
+
+  addEventListener('resize', () => placeDot(false));
+  setActive(current(), false);
+  document.fonts.ready.then(() => placeDot(false));
 </script>
 </body>
 </html>
