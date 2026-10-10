@@ -100,7 +100,7 @@
   .video-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
   .video-len { font-size: 14px; color: var(--ink3); }
   .video-frame {
-    aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden;
+    aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden;
     background: #0B0F17; border: 1px solid var(--line);
   }
   .video-frame iframe, .video-frame video { width: 100%; height: 100%; border: 0; display: block; }
@@ -341,8 +341,8 @@
   // Paste the walkthrough link here: a YouTube or Loom share link, or a path
   // to an .mp4 in this repo (e.g. 'assets/walkthrough.mp4'). While it's
   // empty, the video section stays hidden. VIDEO_LENGTH is optional, e.g. '2 min'.
-  const VIDEO_URL = '';
-  const VIDEO_LENGTH = '';
+  const VIDEO_URL = 'assets/walkthrough.mp4';
+  const VIDEO_LENGTH = '1 min 46 s';
 
   if (VIDEO_URL) {
     const frame = document.getElementById('video-frame');
@@ -353,7 +353,7 @@
               : null;
     frame.innerHTML = src
       ? `<iframe src="${src}" title="Walkthrough of the redesign" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
-      : `<video src="${VIDEO_URL}" controls preload="metadata" playsinline></video>`;
+      : `<video src="${VIDEO_URL}" poster="assets/walkthrough-poster.jpg" controls preload="metadata" playsinline></video>`;
     document.getElementById('video-len').textContent = VIDEO_LENGTH;
     document.getElementById('video').hidden = false;
   }
